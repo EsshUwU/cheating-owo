@@ -12,11 +12,7 @@ export class CheatingDaddyApp extends LitElement {
     static styles = css`
         * {
             box-sizing: border-box;
-            font-family:
-                'Inter',
-                -apple-system,
-                BlinkMacSystemFont,
-                sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0px;
             padding: 0px;
             cursor: default;
@@ -71,9 +67,7 @@ export class CheatingDaddyApp extends LitElement {
         .view-container {
             opacity: 1;
             transform: translateY(0);
-            transition:
-                opacity 0.15s ease-out,
-                transform 0.15s ease-out;
+            transition: opacity 0.15s ease-out, transform 0.15s ease-out;
             height: 100%;
         }
 
@@ -174,8 +168,6 @@ export class CheatingDaddyApp extends LitElement {
         }
     }
 
-
-
     setStatus(text) {
         this.statusText = text;
     }
@@ -187,10 +179,7 @@ export class CheatingDaddyApp extends LitElement {
             this._awaitingNewResponse = false;
             console.log('[setResponse] Pushed new response:', response);
         } else {
-            this.responses = [
-                ...this.responses.slice(0, this.responses.length - 1),
-                response
-            ];
+            this.responses = [...this.responses.slice(0, this.responses.length - 1), response];
             console.log('[setResponse] Updated last response:', response);
         }
         this.shouldAnimateResponse = true;
@@ -332,6 +321,34 @@ export class CheatingDaddyApp extends LitElement {
         this.requestUpdate();
     }
 
+    // Method to focus text input when in assistant view
+    focusTextInput() {
+        if (this.currentView === 'assistant') {
+            // Wait a bit for the view to be fully rendered
+            setTimeout(() => {
+                const assistantView = this.shadowRoot.querySelector('assistant-view');
+                if (assistantView && assistantView.focusTextInput) {
+                    assistantView.focusTextInput();
+
+                    // Additional fallback - try to focus directly if the component method doesn't work
+                    setTimeout(() => {
+                        const textInput = assistantView.shadowRoot?.querySelector('#textInput');
+                        if (textInput && assistantView.shadowRoot.activeElement !== textInput) {
+                            textInput.focus();
+                        }
+                    }, 50);
+
+                    return true;
+                } else {
+                    return false;
+                }
+            }, 100); // Give the view time to render
+            return true; // Return true immediately, actual focus happens async
+        } else {
+            return false;
+        }
+    }
+
     // Onboarding event handlers
     handleOnboardingComplete() {
         this.currentView = 'main';
@@ -431,7 +448,10 @@ export class CheatingDaddyApp extends LitElement {
                         .onSendText=${message => this.handleSendText(message)}
                         .shouldAnimateResponse=${this.shouldAnimateResponse}
                         @response-index-changed=${this.handleResponseIndexChanged}
-                        @response-animation-complete=${() => { this.shouldAnimateResponse = false; this.requestUpdate(); }}
+                        @response-animation-complete=${() => {
+                            this.shouldAnimateResponse = false;
+                            this.requestUpdate();
+                        }}
                     ></assistant-view>
                 `;
 

@@ -4,11 +4,7 @@ import { resizeLayout } from '../../utils/windowResize.js';
 export class CustomizeView extends LitElement {
     static styles = css`
         * {
-            font-family:
-                'Inter',
-                -apple-system,
-                BlinkMacSystemFont,
-                sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             cursor: default;
             user-select: none;
         }
@@ -662,7 +658,7 @@ export class CustomizeView extends LitElement {
             {
                 key: 'nextStep',
                 name: 'Ask Next Step',
-                description: 'Take screenshot and ask AI for the next step suggestion',
+                description: 'Focus text input in assistant view / Take screenshot and ask AI for the next step suggestion',
             },
             {
                 key: 'previousResponse',
@@ -1066,8 +1062,8 @@ export class CustomizeView extends LitElement {
                                         this.selectedImageQuality === 'high'
                                             ? 'Best quality, uses more tokens'
                                             : this.selectedImageQuality === 'medium'
-                                              ? 'Balanced quality and token usage'
-                                              : 'Lower quality, uses fewer tokens'
+                                            ? 'Balanced quality and token usage'
+                                            : 'Lower quality, uses fewer tokens'
                                     }
                                 </div>
                             </div>

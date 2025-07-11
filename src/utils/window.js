@@ -91,6 +91,8 @@ function createWindow(sendToRenderer, geminiSessionRef, randomNames = null) {
 
     // After window is created, check for layout preference and resize if needed
     mainWindow.webContents.once('dom-ready', () => {
+        // Don't auto-focus window on startup - let user manually focus when needed
+
         setTimeout(() => {
             const defaultKeybinds = getDefaultKeybinds();
             let keybinds = defaultKeybinds;
@@ -210,7 +212,8 @@ function updateGlobalShortcuts(keybinds, mainWindow, sendToRenderer, geminiSessi
                 if (mainWindow.isVisible()) {
                     mainWindow.hide();
                 } else {
-                    mainWindow.showInactive();
+                    mainWindow.show(); // Changed from showInactive() to show() to give the window focus
+                    mainWindow.focus(); // Explicitly focus the window
                 }
             });
             console.log(`Registered toggleVisibility: ${keybinds.toggleVisibility}`);
@@ -243,8 +246,12 @@ function updateGlobalShortcuts(keybinds, mainWindow, sendToRenderer, geminiSessi
     if (keybinds.nextStep) {
         try {
             globalShortcut.register(keybinds.nextStep, async () => {
-                console.log('Next step shortcut triggered');
                 try {
+                    // Ensure window is focused before executing shortcut
+                    if (!mainWindow.isFocused()) {
+                        mainWindow.focus();
+                    }
+
                     // Determine the shortcut key format
                     const isMac = process.platform === 'darwin';
                     const shortcutKey = isMac ? 'cmd+enter' : 'ctrl+enter';
@@ -344,7 +351,8 @@ function setupWindowIpcHandlers(mainWindow, sendToRenderer, geminiSessionRef) {
             if (mainWindow.isVisible()) {
                 mainWindow.hide();
             } else {
-                mainWindow.showInactive();
+                mainWindow.show(); // Changed from showInactive() to show() to give the window focus
+                mainWindow.focus(); // Explicitly focus the window
             }
             return { success: true };
         } catch (error) {

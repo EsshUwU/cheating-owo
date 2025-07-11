@@ -224,13 +224,12 @@ async function startCapture(screenshotIntervalSeconds = 5, imageQuality = 'mediu
                 });
 
                 console.log('Linux system audio capture via getDisplayMedia succeeded');
-                
+
                 // Setup audio processing for Linux system audio
                 setupLinuxSystemAudioProcessing();
-                
             } catch (systemAudioError) {
                 console.warn('System audio via getDisplayMedia failed, trying screen-only capture:', systemAudioError);
-                
+
                 // Fallback to screen-only capture
                 mediaStream = await navigator.mediaDevices.getDisplayMedia({
                     video: {
@@ -688,6 +687,13 @@ function handleShortcut(shortcutKey) {
     if (shortcutKey === 'ctrl+enter' || shortcutKey === 'cmd+enter') {
         if (currentView === 'main') {
             cheddar.element().handleStart();
+        } else if (currentView === 'assistant') {
+            // Try to focus the text input first
+            const focused = cheddar.element().focusTextInput();
+            if (!focused) {
+                // If we can't focus the text input, fall back to taking a screenshot
+                captureManualScreenshot();
+            }
         } else {
             captureManualScreenshot();
         }

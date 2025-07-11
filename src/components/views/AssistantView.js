@@ -393,6 +393,37 @@ export class AssistantView extends LitElement {
         }
     }
 
+    focusTextInput() {
+        // Use a small timeout to ensure the DOM is ready
+        setTimeout(() => {
+            const textInput = this.shadowRoot.querySelector('#textInput');
+            if (textInput) {
+                // Ensure the element is focusable
+                if (textInput.tabIndex === -1) {
+                    textInput.tabIndex = 0;
+                }
+
+                // Make sure the element is visible and enabled
+                textInput.disabled = false;
+                textInput.readOnly = false;
+
+                // Force focus with multiple attempts if needed
+                textInput.focus();
+
+                // Dispatch a focus event to ensure it's properly focused
+                textInput.dispatchEvent(new FocusEvent('focus', { bubbles: true }));
+
+                // If the first focus attempt didn't work, try again
+                if (this.shadowRoot.activeElement !== textInput) {
+                    textInput.blur();
+                    setTimeout(() => {
+                        textInput.focus();
+                    }, 10);
+                }
+            }
+        }, 10);
+    }
+
     loadFontSize() {
         const fontSize = localStorage.getItem('fontSize');
         if (fontSize !== null) {
@@ -465,6 +496,7 @@ export class AssistantView extends LitElement {
         if (textInput && textInput.value.trim()) {
             const message = textInput.value.trim();
             textInput.value = ''; // Clear input
+            textInput.blur(); // Remove focus after sending message
             await this.onSendText(message);
         }
     }
@@ -488,6 +520,8 @@ export class AssistantView extends LitElement {
     firstUpdated() {
         super.firstUpdated();
         this.updateResponseContent();
+
+        // Remove auto-focus - user should manually focus with Ctrl+Enter when needed
     }
 
     updated(changedProperties) {

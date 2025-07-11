@@ -349,7 +349,7 @@ export class HelpView extends LitElement {
                         <div class="keyboard-group">
                             <div class="keyboard-group-title">AI Actions</div>
                             <div class="shortcut-item">
-                                <span class="shortcut-description">Take screenshot and ask for next step</span>
+                                <span class="shortcut-description">Focus text input / Take screenshot and ask for next step</span>
                                 <div class="shortcut-keys">${this.formatKeybind(this.keybinds.nextStep)}</div>
                             </div>
                         </div>
@@ -376,6 +376,10 @@ export class HelpView extends LitElement {
 
                         <div class="keyboard-group">
                             <div class="keyboard-group-title">Text Input</div>
+                            <div class="shortcut-item">
+                                <span class="shortcut-description">Focus text input</span>
+                                <div class="shortcut-keys">${this.formatKeybind(this.keybinds.nextStep)}</div>
+                            </div>
                             <div class="shortcut-item">
                                 <span class="shortcut-description">Send message to AI</span>
                                 <div class="shortcut-keys"><span class="key">Enter</span></div>
