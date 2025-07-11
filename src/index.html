@@ -1,74 +1,127 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="content-security-policy" content="script-src 'self' 'unsafe-inline'" />
         <title>Screen and Audio Capture</title>
         <style>
             :root {
+                /* Modern Color Palette */
                 --background-transparent: transparent;
-                --text-color: #e5e5e7;
-                --border-color: rgba(255, 255, 255, 0.2);
-                --header-background: rgba(0, 0, 0, 0.8);
-                --header-actions-color: rgba(255, 255, 255, 0.6);
-                --main-content-background: rgba(0, 0, 0, 0.8);
-                --button-background: rgba(0, 0, 0, 0.5);
-                --button-border: rgba(255, 255, 255, 0.1);
-                --icon-button-color: rgb(229, 229, 231);
-                --hover-background: rgba(255, 255, 255, 0.1);
-                --input-background: rgba(0, 0, 0, 0.3);
-                --placeholder-color: rgba(255, 255, 255, 0.4);
-                --focus-border-color: #007aff;
-                --focus-box-shadow: rgba(0, 122, 255, 0.2);
-                --input-focus-background: rgba(0, 0, 0, 0.5);
-                --scrollbar-track: rgba(0, 0, 0, 0.2);
-                --scrollbar-thumb: rgba(255, 255, 255, 0.2);
-                --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
-                --preview-video-background: rgba(0, 0, 0, 0.9);
-                --preview-video-border: rgba(255, 255, 255, 0.15);
-                --option-label-color: rgba(255, 255, 255, 0.8);
-                --screen-option-background: rgba(0, 0, 0, 0.4);
-                --screen-option-hover-background: rgba(0, 0, 0, 0.6);
-                --screen-option-selected-background: rgba(0, 122, 255, 0.15);
-                --screen-option-text: rgba(255, 255, 255, 0.7);
-                --description-color: rgba(255, 255, 255, 0.6);
-                --start-button-background: white;
-                --start-button-color: black;
-                --start-button-border: white;
-                --start-button-hover-background: rgba(255, 255, 255, 0.8);
-                --start-button-hover-border: rgba(0, 0, 0, 0.2);
-                --text-input-button-background: #007aff;
-                --text-input-button-hover: #0056b3;
-                --link-color: #007aff;
-                --key-background: rgba(255, 255, 255, 0.1);
-                --scrollbar-background: rgba(0, 0, 0, 0.4);
+                --text-color: #ffffff;
+                --text-secondary: rgba(255, 255, 255, 0.8);
+                --text-muted: rgba(255, 255, 255, 0.6);
 
-                /* Layout-specific variables */
-                --header-padding: 10px 20px;
+                /* Glassmorphism Effects */
+                --glass-background: rgba(255, 255, 255, 0.1);
+                --glass-border: rgba(255, 255, 255, 0.2);
+                --glass-backdrop: blur(20px);
+
+                /* Main Backgrounds with Gradients */
+                --header-background: linear-gradient(135deg, rgba(16, 20, 31, 0.4) 0%, rgba(25, 31, 47, 0.5) 100%);
+                --main-content-background: linear-gradient(145deg, rgba(15, 19, 30, 0.4) 0%, rgba(20, 25, 40, 0.4) 100%);
+                --card-background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.03) 100%);
+
+                /* Border Colors */
+                --border-color: rgba(255, 255, 255, 0.15);
+                --border-hover: rgba(255, 255, 255, 0.25);
+                --border-active: rgba(139, 92, 246, 0.5);
+
+                /* Interactive Elements */
+                --button-background: linear-gradient(135deg, rgba(139, 92, 246, 0.8) 0%, rgba(124, 58, 237, 0.8) 100%);
+                --button-hover: linear-gradient(135deg, rgba(139, 92, 246, 1) 0%, rgba(124, 58, 237, 1) 100%);
+                --button-border: rgba(139, 92, 246, 0.3);
+                --button-shadow: 0 4px 15px rgba(139, 92, 246, 0.25);
+
+                /* Icon and Interactive Colors */
+                --icon-button-color: rgba(255, 255, 255, 0.9);
+                --hover-background: rgba(255, 255, 255, 0.08);
+                --hover-glow: 0 0 20px rgba(139, 92, 246, 0.3);
+
+                /* Input Fields */
+                --input-background: rgba(255, 255, 255, 0.03);
+                --input-border: rgba(255, 255, 255, 0.08);
+                --input-focus-background: rgba(255, 255, 255, 0.06);
+                --placeholder-color: rgba(255, 255, 255, 0.5);
+
+                /* Focus States */
+                --focus-border-color: #8b5cf6;
+                --focus-box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2), 0 0 20px rgba(139, 92, 246, 0.1);
+                --focus-glow: 0 0 30px rgba(139, 92, 246, 0.4);
+
+                /* Scrollbars */
+                --scrollbar-track: rgba(255, 255, 255, 0.05);
+                --scrollbar-thumb: linear-gradient(45deg, rgba(139, 92, 246, 0.6), rgba(124, 58, 237, 0.6));
+                --scrollbar-thumb-hover: linear-gradient(45deg, rgba(139, 92, 246, 0.8), rgba(124, 58, 237, 0.8));
+                --scrollbar-background: transparent;
+
+                /* Special Elements */
+                --preview-video-background: rgba(0, 0, 0, 0.95);
+                --preview-video-border: rgba(139, 92, 246, 0.3);
+                --option-label-color: rgba(255, 255, 255, 0.9);
+                --screen-option-background: rgba(255, 255, 255, 0.05);
+                --screen-option-hover-background: rgba(255, 255, 255, 0.1);
+                --screen-option-selected-background: rgba(139, 92, 246, 0.2);
+                --screen-option-text: rgba(255, 255, 255, 0.8);
+                --description-color: rgba(255, 255, 255, 0.7);
+
+                /* Start Button - Premium Look */
+                --start-button-background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+                --start-button-color: #ffffff;
+                --start-button-border: rgba(139, 92, 246, 0.5);
+                --start-button-hover-background: linear-gradient(135deg, #9333ea 0%, #8b5cf6 50%, #7c3aed 100%);
+                --start-button-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+                --start-button-hover-shadow: 0 12px 35px rgba(139, 92, 246, 0.6);
+
+                /* Text Input Button */
+                --text-input-button-background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+                --text-input-button-hover: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+
+                /* Links and Accents */
+                --link-color: #60a5fa;
+                --link-hover: #93c5fd;
+                --key-background: rgba(255, 255, 255, 0.1);
+                --key-border: rgba(255, 255, 255, 0.2);
+
+                /* Success/Error States */
+                --success-color: #10b981;
+                --error-color: #ef4444;
+                --warning-color: #f59e0b;
+
+                /* Layout Variables with Better Spacing */
+                --header-padding: 12px 24px;
                 --header-font-size: 16px;
-                --header-gap: 12px;
-                --header-button-padding: 8px 16px;
-                --header-icon-padding: 8px;
+                --header-gap: 16px;
+                --header-button-padding: 10px 18px;
+                --header-icon-padding: 10px;
                 --header-font-size-small: 13px;
-                --main-content-padding: 20px;
-                --main-content-margin-top: 10px;
+                --main-content-padding: 24px;
+                --main-content-margin-top: 12px;
                 --icon-size: 24px;
-                --border-radius: 10px;
-                --content-border-radius: 10px;
+                --border-radius: 12px;
+                --content-border-radius: 16px;
+                --button-border-radius: 10px;
+
+                /* Animation Variables */
+                --transition-fast: 0.15s ease-out;
+                --transition-normal: 0.25s ease-out;
+                --transition-slow: 0.4s ease-out;
+                --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
             }
 
-            /* Compact layout styles */
+            /* Compact layout styles with modern spacing */
             :root.compact-layout {
-                --header-padding: 6px 12px;
-                --header-font-size: 13px;
-                --header-gap: 6px;
-                --header-button-padding: 4px 8px;
-                --header-icon-padding: 4px;
-                --header-font-size-small: 10px;
-                --main-content-padding: 10px;
-                --main-content-margin-top: 2px;
-                --icon-size: 16px;
-                --border-radius: 4px;
-                --content-border-radius: 4px;
+                --header-padding: 8px 16px;
+                --header-font-size: 14px;
+                --header-gap: 8px;
+                --header-button-padding: 6px 12px;
+                --header-icon-padding: 6px;
+                --header-font-size-small: 11px;
+                --main-content-padding: 16px;
+                --main-content-margin-top: 6px;
+                --icon-size: 20px;
+                --border-radius: 8px;
+                --content-border-radius: 10px;
+                --button-border-radius: 6px;
             }
 
             html,
@@ -78,24 +131,122 @@
                 height: 100%;
                 overflow: hidden;
                 background: transparent;
+                font-synthesis: none;
+                text-rendering: optimizeLegibility;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
             }
 
             body {
-                font-family:
-                    'Inter',
-                    -apple-system,
-                    BlinkMacSystemFont,
-                    sans-serif;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-weight: 400;
+                line-height: 1.5;
             }
 
             * {
                 box-sizing: border-box;
             }
 
+            /* Modern scrollbar styling */
+            ::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: var(--scrollbar-track);
+                border-radius: 4px;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: var(--scrollbar-thumb);
+                border-radius: 4px;
+                transition: var(--transition-normal);
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--scrollbar-thumb-hover);
+                box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+            }
+
+            /* Modern selection styling */
+            ::selection {
+                background: rgba(139, 92, 246, 0.3);
+                color: white;
+            }
+
+            /* Disable text selection on UI elements */
+            button,
+            .button,
+            .icon-button {
+                user-select: none;
+                -webkit-user-select: none;
+            }
+
             cheating-daddy-app {
                 display: block;
                 width: 100%;
                 height: 100%;
+            }
+
+            /* Global animation classes */
+            .animate-fade-in {
+                animation: fadeIn var(--transition-normal) ease-out;
+            }
+
+            .animate-slide-up {
+                animation: slideUp var(--transition-normal) var(--bounce);
+            }
+
+            .animate-glow {
+                animation: glow 2s ease-in-out infinite alternate;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes glow {
+                from {
+                    box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+                }
+                to {
+                    box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+                }
+            }
+
+            /* Modern glass effect utility */
+            .glass-effect {
+                backdrop-filter: var(--glass-backdrop);
+                -webkit-backdrop-filter: var(--glass-backdrop);
+                background: var(--glass-background);
+                border: 1px solid var(--glass-border);
+            }
+
+            /* Modern hover effects */
+            .hover-lift {
+                transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+            }
+
+            .hover-lift:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             }
         </style>
     </head>

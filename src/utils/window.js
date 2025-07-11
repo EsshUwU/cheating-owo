@@ -27,8 +27,8 @@ function ensureDataDirectories() {
 
 function createWindow(sendToRenderer, geminiSessionRef, randomNames = null) {
     // Get layout preference (default to 'normal')
-    let windowWidth = 1100;
-    let windowHeight = 600;
+    let windowWidth = 900;
+    let windowHeight = 400;
 
     const mainWindow = new BrowserWindow({
         width: windowWidth,
@@ -64,11 +64,11 @@ function createWindow(sendToRenderer, geminiSessionRef, randomNames = null) {
     mainWindow.setContentProtection(true);
     mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
-    // Center window at the top of the screen
+    // Center window with some margin from the top of the screen
     const primaryDisplay = screen.getPrimaryDisplay();
     const { width: screenWidth } = primaryDisplay.workAreaSize;
     const x = Math.floor((screenWidth - windowWidth) / 2);
-    const y = 0;
+    const y = 35; // Add 20px margin from top
     mainWindow.setPosition(x, y);
 
     if (process.platform === 'win32') {

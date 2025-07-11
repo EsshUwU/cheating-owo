@@ -19,7 +19,7 @@ export class AssistantView extends LitElement {
             border-radius: 10px;
             font-size: var(--response-font-size, 18px);
             line-height: 1.6;
-            background: var(--main-content-background);
+            background: linear-gradient(145deg, rgba(15, 19, 30, 0.1) 0%, rgba(20, 25, 40, 0.2) 20%);
             padding: 16px;
             scroll-behavior: smooth;
             user-select: text;

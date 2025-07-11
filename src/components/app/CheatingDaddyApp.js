@@ -12,7 +12,7 @@ export class CheatingDaddyApp extends LitElement {
     static styles = css`
         * {
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0px;
             padding: 0px;
             cursor: default;
@@ -25,12 +25,20 @@ export class CheatingDaddyApp extends LitElement {
             height: 100vh;
             background-color: var(--background-transparent);
             color: var(--text-color);
+            font-weight: 400;
+            line-height: 1.5;
         }
 
         .window-container {
             height: 100vh;
-            border-radius: 7px;
+            border-radius: var(--content-border-radius);
             overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: linear-gradient(145deg, rgba(15, 19, 30, 0.7) 0%, rgba(20, 25, 40, 0.65) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            animation: windowAppear var(--transition-slow) var(--bounce);
         }
 
         .container {
@@ -45,54 +53,155 @@ export class CheatingDaddyApp extends LitElement {
             overflow-y: auto;
             margin-top: var(--main-content-margin-top);
             border-radius: var(--content-border-radius);
-            transition: all 0.15s ease-out;
+            transition: all var(--transition-normal);
             background: var(--main-content-background);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(139, 92, 246, 0.3) 50%, transparent 100%);
+            opacity: 0.6;
         }
 
         .main-content.with-border {
             border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
         .main-content.assistant-view {
-            padding: 10px;
+            padding: 12px;
             border: none;
+            // background: var(--main-content-background);
+            background: linear-gradient(145deg, rgba(15, 19, 30, 0.3) 0%, rgba(20, 25, 40, 0.4) 100%);
+
         }
 
         .main-content.onboarding-view {
             padding: 0;
             border: none;
             background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
 
         .view-container {
             opacity: 1;
             transform: translateY(0);
-            transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+            transition: opacity var(--transition-normal) ease-out, transform var(--transition-normal) var(--bounce);
             height: 100%;
+            animation: viewSlideIn var(--transition-normal) ease-out;
         }
 
         .view-container.entering {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(15px) scale(0.98);
         }
 
+        /* Modern scrollbar styling */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--scrollbar-background);
-            border-radius: 3px;
+            background: var(--scrollbar-track);
+            border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb {
             background: var(--scrollbar-thumb);
-            border-radius: 3px;
+            border-radius: 4px;
+            transition: var(--transition-normal);
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--scrollbar-thumb-hover);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Animation keyframes */
+        @keyframes windowAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-10px);
+                filter: blur(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes viewSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Floating particle effect for premium feel */
+        .window-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+            animation: floatingParticles 8s ease-in-out infinite;
+        }
+
+        @keyframes floatingParticles {
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateY(-5px) scale(1.02);
+                opacity: 0.6;
+            }
+        }
+
+        /* Enhanced glow effects for interactive elements */
+        .glow-on-hover {
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+        .glow-on-hover::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, rgba(139, 92, 246, 0.3), rgba(124, 58, 237, 0.3), rgba(168, 85, 247, 0.3));
+            border-radius: inherit;
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+            z-index: -1;
+            filter: blur(4px);
+        }
+
+        .glow-on-hover:hover::before {
+            opacity: 1;
         }
     `;
 

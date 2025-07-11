@@ -10,16 +10,23 @@ export class MainView extends LitElement {
         }
 
         .welcome {
-            font-size: 24px;
-            margin-bottom: 8px;
-            font-weight: 600;
+            font-size: 28px;
+            margin-bottom: 12px;
+            font-weight: 700;
             margin-top: auto;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(139, 92, 246, 0.9) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.025em;
+            line-height: 1.2;
         }
 
         .input-group {
             display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 16px;
+            margin-bottom: 24px;
+            align-items: stretch;
         }
 
         .input-group input {
@@ -29,45 +36,60 @@ export class MainView extends LitElement {
         input {
             background: var(--input-background);
             color: var(--text-color);
-            border: 1px solid var(--button-border);
-            padding: 10px 14px;
+            border: 1px solid var(--input-border);
+            padding: 14px 18px;
             width: 100%;
-            border-radius: 8px;
+            border-radius: var(--button-border-radius);
             font-size: 14px;
-            transition: border-color 0.2s ease;
+            font-weight: 400;
+            transition: all var(--transition-normal);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        input:hover {
+            border-color: var(--border-hover);
+            background: var(--input-focus-background);
         }
 
         input:focus {
             outline: none;
             border-color: var(--focus-border-color);
-            box-shadow: 0 0 0 3px var(--focus-box-shadow);
+            box-shadow: var(--focus-box-shadow);
             background: var(--input-focus-background);
+            transform: translateY(-1px);
         }
 
         input::placeholder {
             color: var(--placeholder-color);
+            font-weight: 300;
         }
 
-        /* Red blink animation for empty API key */
+        /* Enhanced error animation */
         input.api-key-error {
-            animation: blink-red 1s ease-in-out;
-            border-color: #ff4444;
+            animation: errorShake 0.6s ease-in-out;
+            border-color: var(--error-color);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
         }
 
-        @keyframes blink-red {
+        @keyframes errorShake {
             0%,
             100% {
-                border-color: var(--button-border);
-                background: var(--input-background);
+                transform: translateX(0);
             }
-            25%,
-            75% {
-                border-color: #ff4444;
-                background: rgba(255, 68, 68, 0.1);
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-3px);
             }
-            50% {
-                border-color: #ff6666;
-                background: rgba(255, 68, 68, 0.15);
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(3px);
             }
         }
 
@@ -75,28 +97,67 @@ export class MainView extends LitElement {
             background: var(--start-button-background);
             color: var(--start-button-color);
             border: 1px solid var(--start-button-border);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: var(--button-border-radius);
+            font-size: 14px;
+            font-weight: 600;
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: var(--start-button-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+            transition: left 0.6s ease;
+        }
+
+        .start-button:hover::before {
+            left: 100%;
         }
 
         .start-button:hover {
             background: var(--start-button-hover-background);
-            border-color: var(--start-button-hover-border);
+            box-shadow: var(--start-button-hover-shadow);
+            transform: translateY(-2px);
+        }
+
+        .start-button:active {
+            transform: translateY(0);
+            box-shadow: var(--start-button-shadow);
         }
 
         .start-button.initializing {
-            opacity: 0.5;
+            opacity: 0.7;
+            animation: pulse 2s ease-in-out infinite;
+            cursor: not-allowed;
         }
 
         .start-button.initializing:hover {
             background: var(--start-button-background);
-            border-color: var(--start-button-border);
+            transform: none;
+            box-shadow: var(--start-button-shadow);
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 0.9;
+            }
         }
 
         .shortcut-icons {
@@ -117,21 +178,34 @@ export class MainView extends LitElement {
 
         .description {
             color: var(--description-color);
-            font-size: 14px;
-            margin-bottom: 24px;
-            line-height: 1.5;
+            font-size: 15px;
+            margin-bottom: 28px;
+            line-height: 1.6;
+            font-weight: 400;
+            opacity: 0.9;
         }
 
         .link {
             color: var(--link-color);
-            text-decoration: underline;
+            text-decoration: none;
             cursor: pointer;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            border-bottom: 1px solid transparent;
+        }
+
+        .link:hover {
+            color: var(--link-hover);
+            border-bottom-color: var(--link-hover);
+            text-shadow: 0 0 8px rgba(96, 165, 250, 0.4);
         }
 
         .shortcut-hint {
-            color: var(--description-color);
-            font-size: 11px;
+            color: var(--text-muted);
+            font-size: 12px;
             opacity: 0.8;
+            font-weight: 300;
+            letter-spacing: 0.01em;
         }
 
         :host {
@@ -139,7 +213,19 @@ export class MainView extends LitElement {
             display: flex;
             flex-direction: column;
             width: 100%;
-            max-width: 500px;
+            max-width: 520px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     `;
 

@@ -3,7 +3,7 @@ import { html, css, LitElement } from '../../assets/lit-core-2.7.4.min.js';
 export class AppHeader extends LitElement {
     static styles = css`
         * {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             cursor: default;
             user-select: none;
         }
@@ -16,13 +16,32 @@ export class AppHeader extends LitElement {
             border: 1px solid var(--border-color);
             background: var(--header-background);
             border-radius: var(--border-radius);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(139, 92, 246, 0.4) 50%, transparent 60%);
         }
 
         .header-title {
             flex: 1;
             font-size: var(--header-font-size);
-            font-weight: 600;
+            font-weight: 700;
             -webkit-app-region: drag;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(139, 92, 246, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
         }
 
         .header-actions {
@@ -34,7 +53,8 @@ export class AppHeader extends LitElement {
 
         .header-actions span {
             font-size: var(--header-font-size-small);
-            color: var(--header-actions-color);
+            color: var(--text-secondary);
+            font-weight: 400;
         }
 
         .button {
@@ -42,9 +62,29 @@ export class AppHeader extends LitElement {
             color: var(--text-color);
             border: 1px solid var(--button-border);
             padding: var(--header-button-padding);
-            border-radius: 8px;
+            border-radius: var(--button-border-radius);
             font-size: var(--header-font-size-small);
             font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: var(--button-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+            transition: left 0.5s ease;
+        }
+
+        .button:hover::before {
+            left: 100%;
         }
 
         .icon-button {
@@ -52,39 +92,65 @@ export class AppHeader extends LitElement {
             color: var(--icon-button-color);
             border: none;
             padding: var(--header-icon-padding);
-            border-radius: 8px;
+            border-radius: var(--button-border-radius);
             font-size: var(--header-font-size-small);
             font-weight: 500;
             display: flex;
-            opacity: 0.6;
-            transition: opacity 0.2s ease;
+            opacity: 0.7;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+            position: relative;
         }
 
         .icon-button svg {
             width: var(--icon-size);
             height: var(--icon-size);
+            transition: all var(--transition-normal);
         }
 
         .icon-button:hover {
             background: var(--hover-background);
             opacity: 1;
+            transform: translateY(-1px);
+        }
+
+        .icon-button:hover svg {
+            filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.4));
         }
 
         .button:hover {
-            background: var(--hover-background);
+            background: var(--button-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .button:active,
+        .icon-button:active {
+            transform: translateY(0);
         }
 
         :host([isclickthrough]) .button:hover,
         :host([isclickthrough]) .icon-button:hover {
             background: transparent;
+            transform: none;
+            box-shadow: none;
         }
 
         .key {
             background: var(--key-background);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
+            border: 1px solid var(--key-border);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
             margin: 0px;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all var(--transition-fast);
+        }
+
+        .key:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
         }
     `;
 
@@ -174,15 +240,15 @@ export class AppHeader extends LitElement {
 
     getViewTitle() {
         const titles = {
-            onboarding: 'Welcome to Cheating Daddy',
-            main: 'Cheating Daddy',
+            onboarding: 'Welcome to Cheating OwO',
+            main: 'Cheating OwO',
             customize: 'Customize',
             help: 'Help & Shortcuts',
             history: 'Conversation History',
             advanced: 'Advanced Tools',
-            assistant: 'Cheating Daddy',
+            assistant: 'Cheating OwO',
         };
-        return titles[this.currentView] || 'Cheating Daddy';
+        return titles[this.currentView] || 'Cheating OwO';
     }
 
     getElapsedTime() {
