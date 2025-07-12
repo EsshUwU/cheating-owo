@@ -39,6 +39,7 @@ export class CheatingDaddyApp extends LitElement {
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
             animation: windowAppear var(--transition-slow) var(--bounce);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .container {
@@ -81,7 +82,6 @@ export class CheatingDaddyApp extends LitElement {
             border: none;
             // background: var(--main-content-background);
             background: linear-gradient(145deg, rgba(15, 19, 30, 0.3) 0%, rgba(20, 25, 40, 0.4) 100%);
-
         }
 
         .main-content.onboarding-view {
@@ -265,6 +265,10 @@ export class CheatingDaddyApp extends LitElement {
                 this._isClickThrough = isEnabled;
             });
         }
+
+        // Add keyboard event listener for fullscreen toggle
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+        document.addEventListener('keydown', this.handleKeyDown);
     }
 
     disconnectedCallback() {
@@ -274,6 +278,58 @@ export class CheatingDaddyApp extends LitElement {
             ipcRenderer.removeAllListeners('update-response');
             ipcRenderer.removeAllListeners('update-status');
             ipcRenderer.removeAllListeners('click-through-toggled');
+        }
+
+        // Remove keyboard event listener
+        document.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    handleKeyDown(event) {
+        // Check for Ctrl + + (Plus/Equal key) to enter fullscreen
+        if (event.ctrlKey && (event.key === '+' || event.key === '=' || event.code === 'Equal')) {
+            event.preventDefault();
+            this.enterFullscreen();
+        }
+        // Check for Ctrl + - (Minus key) to exit fullscreen
+        else if (event.ctrlKey && (event.key === '-' || event.code === 'Minus')) {
+            event.preventDefault();
+            this.exitFullscreen();
+        }
+    }
+
+    async enterFullscreen() {
+        // Use Electron's native fullscreen functionality
+        if (window.require) {
+            const { ipcRenderer } = window.require('electron');
+            try {
+                await ipcRenderer.invoke('enter-fullscreen');
+            } catch (error) {
+                console.error('Failed to enter fullscreen:', error);
+            }
+        }
+    }
+
+    async exitFullscreen() {
+        // Use Electron's native fullscreen functionality
+        if (window.require) {
+            const { ipcRenderer } = window.require('electron');
+            try {
+                await ipcRenderer.invoke('exit-fullscreen');
+            } catch (error) {
+                console.error('Failed to exit fullscreen:', error);
+            }
+        }
+    }
+
+    async toggleFullscreen() {
+        // Use Electron's native fullscreen functionality
+        if (window.require) {
+            const { ipcRenderer } = window.require('electron');
+            try {
+                await ipcRenderer.invoke('toggle-fullscreen');
+            } catch (error) {
+                console.error('Failed to toggle fullscreen:', error);
+            }
         }
     }
 

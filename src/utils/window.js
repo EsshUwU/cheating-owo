@@ -4,10 +4,15 @@ const fs = require('node:fs');
 const os = require('os');
 const { applyStealthMeasures, startTitleRandomization } = require('./stealthFeatures');
 
-let mouseEventsIgnored = false;
 let windowResizing = false;
 let resizeAnimation = null;
-const RESIZE_ANIMATION_DURATION = 500; // milliseconds
+let mouseEventsIgnored = false;
+
+// Store original window state for fullscreen restore
+let originalWindowState = null;
+
+// Animation duration for window resize transitions
+const RESIZE_ANIMATION_DURATION = 300; // milliseconds
 
 function ensureDataDirectories() {
     const homeDir = os.homedir();
@@ -361,6 +366,113 @@ function setupWindowIpcHandlers(mainWindow, sendToRenderer, geminiSessionRef) {
         }
     });
 
+    ipcMain.handle('toggle-fullscreen', async event => {
+        try {
+            if (mainWindow.isDestroyed()) {
+                return { success: false, error: 'Window has been destroyed' };
+            }
+
+            const isFullScreen = mainWindow.isFullScreen();
+            mainWindow.setFullScreen(!isFullScreen);
+            console.log(`Window fullscreen toggled: ${!isFullScreen}`);
+            return { success: true };
+        } catch (error) {
+            console.error('Error toggling fullscreen:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('enter-fullscreen', async event => {
+        try {
+            if (mainWindow.isDestroyed()) {
+                return { success: false, error: 'Window has been destroyed' };
+            }
+
+            if (!mainWindow.isFullScreen()) {
+                // Store original window state before entering fullscreen
+                const [currentWidth, currentHeight] = mainWindow.getSize();
+                const [currentX, currentY] = mainWindow.getPosition();
+
+                originalWindowState = {
+                    width: currentWidth,
+                    height: currentHeight,
+                    x: currentX,
+                    y: currentY,
+                };
+
+                // Get screen dimensions
+                const primaryDisplay = screen.getPrimaryDisplay();
+                const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+
+                // Calculate target size with 50px padding on each side
+                const targetWidth = screenWidth - 100; // 50px on each side = 100px total
+                const targetHeight = screenHeight - 100; // 50px on each side = 100px total
+                const targetX = 50; // 50px from left edge
+                const targetY = 50; // 50px from top edge
+
+                // Animate the window to fullscreen size and position (faster animation for enter-fullscreen)
+                await animateWindowRestoreFromFullscreen(mainWindow, targetWidth, targetHeight, targetX, targetY, 150);
+
+                console.log(
+                    `Window entered pseudo-fullscreen: ${targetWidth}x${targetHeight} at (${targetX}, ${targetY}), stored original state:`,
+                    originalWindowState
+                );
+            }
+            return { success: true };
+        } catch (error) {
+            console.error('Error entering fullscreen:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('exit-fullscreen', async event => {
+        try {
+            if (mainWindow.isDestroyed()) {
+                return { success: false, error: 'Window has been destroyed' };
+            }
+
+            // Exit fullscreen if currently fullscreen
+            if (mainWindow.isFullScreen()) {
+                mainWindow.setFullScreen(false);
+                console.log('Window exited fullscreen');
+            }
+
+            // Restore to original state if available, otherwise default to 900x400
+            let targetWidth, targetHeight, targetX, targetY;
+
+            if (originalWindowState) {
+                targetWidth = originalWindowState.width;
+                targetHeight = originalWindowState.height;
+                targetX = originalWindowState.x;
+                targetY = originalWindowState.y;
+                console.log('Restoring to original state:', originalWindowState);
+            } else {
+                // Fallback to default size and position
+                targetWidth = 900;
+                targetHeight = 400;
+
+                // Position at default location (centered horizontally, near top)
+                const primaryDisplay = screen.getPrimaryDisplay();
+                const { width: screenWidth } = primaryDisplay.workAreaSize;
+                targetX = Math.floor((screenWidth - targetWidth) / 2);
+                targetY = 35;
+                console.log('No original state found, using defaults');
+            }
+
+            // Animate the window back to its original size and position
+            await animateWindowRestoreFromFullscreen(mainWindow, targetWidth, targetHeight, targetX, targetY);
+
+            // Clear the stored state
+            originalWindowState = null;
+
+            console.log(`Window restored to: ${targetWidth}x${targetHeight} at (${targetX}, ${targetY})`);
+            return { success: true };
+        } catch (error) {
+            console.error('Error exiting fullscreen:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
     function animateWindowResize(mainWindow, targetWidth, targetHeight, layoutMode) {
         return new Promise(resolve => {
             // Check if window is destroyed before starting animation
@@ -390,7 +502,7 @@ function setupWindowIpcHandlers(mainWindow, sendToRenderer, geminiSessionRef) {
             windowResizing = true;
             mainWindow.setResizable(true);
 
-            const frameRate = 60; // 60 FPS
+            const frameRate = 165; // 60 FPS
             const totalFrames = Math.floor(RESIZE_ANIMATION_DURATION / (1000 / frameRate));
             let currentFrame = 0;
 
@@ -438,6 +550,84 @@ function setupWindowIpcHandlers(mainWindow, sendToRenderer, geminiSessionRef) {
                     }
 
                     console.log(`Animation complete: ${targetWidth}x${targetHeight}`);
+                    resolve();
+                }
+            }, 1000 / frameRate);
+        });
+    }
+
+    function animateWindowRestoreFromFullscreen(mainWindow, targetWidth, targetHeight, targetX, targetY, duration = RESIZE_ANIMATION_DURATION) {
+        return new Promise(resolve => {
+            // Check if window is destroyed before starting animation
+            if (mainWindow.isDestroyed()) {
+                console.log('Cannot animate restore: window has been destroyed');
+                resolve();
+                return;
+            }
+
+            // Clear any existing animation
+            if (resizeAnimation) {
+                clearInterval(resizeAnimation);
+                resizeAnimation = null;
+            }
+
+            const [startWidth, startHeight] = mainWindow.getSize();
+            const [startX, startY] = mainWindow.getPosition();
+
+            console.log(
+                `Starting animated restore from ${startWidth}x${startHeight} at (${startX}, ${startY}) to ${targetWidth}x${targetHeight} at (${targetX}, ${targetY}) (duration: ${duration}ms)`
+            );
+
+            windowResizing = true;
+            mainWindow.setResizable(true);
+
+            const frameRate = 120;
+            const totalFrames = Math.floor(duration / (1000 / frameRate));
+            let currentFrame = 0;
+
+            const widthDiff = targetWidth - startWidth;
+            const heightDiff = targetHeight - startHeight;
+            const xDiff = targetX - startX;
+            const yDiff = targetY - startY;
+
+            resizeAnimation = setInterval(() => {
+                currentFrame++;
+                const progress = currentFrame / totalFrames;
+
+                // Use linear easing to ensure both axes change at exactly the same rate
+                const easedProgress = progress;
+
+                const currentWidth = Math.round(startWidth + widthDiff * easedProgress);
+                const currentHeight = Math.round(startHeight + heightDiff * easedProgress);
+                const currentX = Math.round(startX + xDiff * easedProgress);
+                const currentY = Math.round(startY + yDiff * easedProgress);
+
+                if (!mainWindow || mainWindow.isDestroyed()) {
+                    clearInterval(resizeAnimation);
+                    resizeAnimation = null;
+                    windowResizing = false;
+                    return;
+                }
+
+                // Set both size and position in rapid succession to minimize visual lag
+                mainWindow.setSize(currentWidth, currentHeight);
+                mainWindow.setPosition(currentX, currentY);
+
+                if (currentFrame >= totalFrames) {
+                    clearInterval(resizeAnimation);
+                    resizeAnimation = null;
+                    windowResizing = false;
+
+                    // Check if window is still valid before final operations
+                    if (!mainWindow.isDestroyed()) {
+                        mainWindow.setResizable(false);
+
+                        // Ensure final size and position are exact
+                        mainWindow.setSize(targetWidth, targetHeight);
+                        mainWindow.setPosition(targetX, targetY);
+                    }
+
+                    console.log(`Animation complete: ${targetWidth}x${targetHeight} at (${targetX}, ${targetY})`);
                     resolve();
                 }
             }, 1000 / frameRate);
